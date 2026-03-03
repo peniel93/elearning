@@ -1,5 +1,5 @@
 <?php
-require_once '../config.php';
+require_once __DIR__ . '/../config.php';
 
 class User {
     private $pdo;
@@ -32,7 +32,5 @@ class User {
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-    // Add more methods as needed, e.g., logout: session_destroy();
 }
 ?>
