@@ -3,16 +3,22 @@ session_start();
 require_once 'config.php';
 require_once 'models/User.php';
 
+$csrf_token = generate_csrf_token();  // Generate CSRF token
+
 $userModel = new User($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    if ($userModel->login($email, $password)) {
-        header('Location: index.php');
-        exit;
+    if (!validate_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token";
     } else {
-        $error = "Invalid credentials";
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        if ($userModel->login($email, $password)) {
+            header('Location: index.php');
+            exit;
+        } else {
+            $error = "Invalid credentials";
+        }
     }
 }
 ?>
@@ -29,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h2>Login</h2>
         <?php if (isset($error)): ?><div class="alert alert-danger"><?php echo $error; ?></div><?php endif; ?>
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" class="form-control" required>
